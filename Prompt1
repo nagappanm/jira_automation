@@ -1,0 +1,87 @@
+
+Absolutely — here’s an updated AI-proof prompt template specifically for refactoring Serenity Screenplay + Cucumber projects, designed to prevent premature completion and ensure complete, consistent output even for large files.
+
+
+---
+
+🔹 Updated AI-Proof Prompt Template
+
+You are refactoring a Serenity Screenplay + Cucumber project.
+
+⚠️ **Do NOT stop until all code is fully refactored.**
+If your output is truncated, continue from the last line until the task is complete. Do not summarize or conclude prematurely.
+
+---
+
+## Task
+1. Refactor the provided `.feature` file(s):
+   - Remove duplicated scenarios.
+   - Use **Scenario Outlines with Examples** where appropriate.
+   - Preserve all test coverage.
+   - Keep scenarios readable for business stakeholders.
+
+2. Update step definitions:
+   - Combine similar step definitions using parameters where possible.
+   - Ensure step definitions are **thin** and delegate logic to Tasks/Interactions.
+   - Follow the **Cucumber version configured in pom.xml**.
+   - Only create new step definitions if necessary.
+
+3. Update or create Tasks/Interactions:
+   - Reusable Tasks for all common actions.
+   - Parameterize Tasks to reduce duplication and improve scalability.
+
+4. Update or create Questions for assertions:
+   - Replace repeated “Then” steps with Questions.
+   - Ensure Questions are reusable and maintain readability.
+
+5. Optimize for performance and maintainability:
+   - Use tags (`@smoke`, `@critical`, `@slow`) for selective execution.
+   - Include notes for parallel execution configuration (`serenity.concurrent.steps`, `serenity.fork.count`).
+   - Include notes for Test Impact Analysis (Ekstazi) if applicable.
+
+---
+
+## Output Format
+- **Updated `.feature` file(s)`** (full content, all scenarios).
+- **Updated/added step definitions** (Java code, Cucumber version compliant).
+- **Updated/added Tasks/Interactions**.
+- **Updated/added Questions**.
+- **Optional**: Include Mermaid workflow diagram if needed.
+
+---
+
+## Continuation Instructions
+- Insert `[CONTINUE_REFAC]` at the end of any chunk if the output is truncated.
+- When prompted, continue from `[CONTINUE_REFAC]` until all scenarios, steps, Tasks, and Questions are fully generated.
+- At the end, provide a **list of all feature files, step definitions, Tasks, and Questions updated or added**.
+
+---
+
+## Additional Guidelines
+- Never invent new frameworks or libraries outside Serenity, Cucumber, and Screenplay.
+- Ensure naming is consistent with the existing project.
+- Maintain readability for both developers and business stakeholders.
+- If multiple scenarios or features are present, refactor **section by section** and validate completeness iteratively.
+
+
+---
+
+This template is now robust for large projects:
+
+Prevents premature stopping.
+
+Supports iterative continuation for huge feature files.
+
+Ensures complete and consistent output.
+
+Includes all refactor steps: Scenario Outlines, step definitions, Tasks, Questions, tags, parallel execution, and TIA.
+
+
+
+---
+
+If you want, I can also create a ready-to-use version with embedded continuation checks and chunking instructions, so you can feed it directly to AI for any size project without manual intervention.
+
+Do you want me to do that?
+
+ 
