@@ -1,0 +1,270 @@
+
+Perfect ✅ — here’s the fully updated PROMPT_GUIDE.md with all the high-impact refactor strategies, performance optimizations, examples, and a workflow diagram included. This is now a complete reference file for your Serenity Screenplay + Cucumber project.
+
+
+---
+
+🔹 PROMPT_GUIDE.md (Complete High-Impact Edition)
+
+# Prompt Guide for Refactoring Cucumber Scenarios in Serenity Screenplay
+
+This guide ensures consistency when refactoring `.feature` files and step definitions using LLMs (e.g., Cline + Claude) in Serenity BDD with the Screenplay pattern. It now includes **high-impact strategies** for reducing duplication, improving execution speed, maintaining full coverage, and a visual workflow.
+
+---
+
+## 🎯 Goals
+- Reduce duplicated scenarios in `.feature` files.
+- Improve performance (faster execution) without losing coverage.
+- Keep scenarios human-readable for business stakeholders.
+- Ensure new step definitions follow the **Cucumber version configured in `pom.xml`**.
+- Follow **Serenity Screenplay best practices** (thin step definitions, rich Tasks/Interactions).
+- Provide **high-impact refactor strategies** that give immediate gains.
+
+---
+
+## ⚖️ Rules
+1. **Feature Files**
+   - Refactor duplicated scenarios into **Scenario Outlines with Examples**.
+   - Combine similar scenarios only if business readability is preserved.
+   - Preserve test intent — coverage must remain intact.
+
+2. **Performance Optimization**
+   - Identify redundant or slow scenarios → consolidate or tag them (`@slow`, `@critical`).
+   - Push edge-case variations to API/service-level tests.
+   - Always run **critical paths in fast feedback**; full regression nightly.
+
+3. **Step Definitions**
+   - Never modify unrelated step definitions.
+   - Only add new step definitions if required.
+   - Follow the **Cucumber version in `pom.xml`** for imports/annotations.
+   - Keep step definitions thin — delegate to Tasks/Interactions.
+   - Combine similar step definitions where appropriate using **parameters**.
+
+4. **Screenplay Pattern**
+   - Logic goes in **Tasks/Interactions**, not step definitions.
+   - Use **Questions** for assertions instead of repeating “Then” steps.
+   - Keep naming consistent with the existing project.
+
+5. **Execution Strategies**
+   - Use **tags** (`@smoke`, `@critical`, `@slow`) to run selective scenarios.
+   - Enable **parallel execution** with `serenity.concurrent.steps` and `serenity.fork.count`.
+   - Enable **Test Impact Analysis (Ekstazi)** to run only impacted scenarios.
+
+6. **Output Format**
+   - Updated `.feature` file in full.
+   - Updated/added step definitions or Tasks.
+   - Use `diff` format if updating existing files.
+
+---
+
+## 📝 Prompt Template
+
+```markdown
+You are helping me refactor a Cucumber `.feature` file in Serenity BDD with the Screenplay pattern.
+
+**Goals**
+- Reduce duplicated scenarios using Scenario Outlines + Examples.
+- Improve performance by minimizing redundant scenarios while preserving coverage.
+- Consolidate repeated assertions into Questions.
+- Combine similar step definitions where possible.
+- Ensure new step definitions follow the Cucumber version in `pom.xml`.
+- Use tags, parallel execution, and Test Impact Analysis for faster CI feedback.
+
+**Rules**
+- Do NOT modify unrelated step definitions.
+- Only create new step definitions if required.
+- Delegate logic to Tasks/Interactions; step definitions should be thin.
+- Never invent frameworks/libraries outside Serenity, Cucumber, Screenplay.
+
+**Steps**
+1. Summarize current feature file.
+2. Identify duplicated/redundant scenarios.
+3. Propose refactor strategy:
+   - Scenario Outline for duplicates.
+   - Combine similar step definitions using parameters.
+   - Replace repeated assertions with Questions.
+   - Tag scenarios for selective execution.
+   - Parallelize where possible.
+   - Apply TIA/Ekstazi for impacted tests.
+4. Output:
+   - Updated `.feature` file.
+   - Updated/added step definitions (Cucumber version compliant).
+   - Updated/added Tasks/Interactions if needed.
+
+
+---
+
+✅ High-Impact Refactor Examples
+
+1. Scenario Outlines + Combined Step Defs
+
+Before:
+
+Scenario: Login with username
+  When I login with username "john"
+  Then I see dashboard
+
+Scenario: Login with email
+  When I login with email "john@example.com"
+  Then I see dashboard
+
+After:
+
+Scenario Outline: Login variations
+  When I login with <type> "<credential>"
+  Then I should see dashboard
+
+  Examples:
+    | type     | credential          |
+    | username | john               |
+    | email    | john@example.com   |
+
+Combined Step Def:
+
+@When("I login with {string} {string}")
+public void login(String type, String credential) {
+    if ("username".equalsIgnoreCase(type)) {
+        actor.attemptsTo(Login.withUsername(credential));
+    } else if ("email".equalsIgnoreCase(type)) {
+        actor.attemptsTo(Login.withEmail(credential));
+    }
+}
+
+
+---
+
+2. Use Questions for Assertions
+
+Before (repeated Then steps):
+
+Then I should see "£100" in balance
+Then I should see "Active" account status
+
+After (parameterized Question):
+
+Then the account balance should be "<balance>"
+Then the account status should be "<status>"
+
+Question Example:
+
+public class TheAccountBalance implements Question<String> {
+    @Override
+    public String answeredBy(Actor actor) {
+        return Text.of(AccountPage.BALANCE).viewedBy(actor).asString();
+    }
+
+    public static TheAccountBalance displayed() {
+        return new TheAccountBalance();
+    }
+}
+
+
+---
+
+3. Tags + Parallel Execution + TIA
+
+Tags in feature:
+
+@smoke @critical
+Scenario: User logs in
+...
+@checkout
+Scenario: User completes checkout
+
+Serenity parallel execution (serenity.properties):
+
+serenity.concurrent.steps=8
+serenity.fork.count=4
+
+TIA with Ekstazi (Maven):
+
+<plugin>
+  <groupId>org.ekstazi</groupId>
+  <artifactId>ekstazi-maven-plugin</artifactId>
+  <version>5.0.0</version>
+  <executions>
+    <execution>
+      <phase>test</phase>
+      <goals>
+        <goal>select</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+
+
+---
+
+🔹 Workflow Diagram (Mermaid)
+
+flowchart TD
+    A[Feature File (.feature)] -->|Scenario Outline + Examples| B[Step Definitions]
+    B -->|Thin step def delegates| C[Tasks / Interactions]
+    C -->|Encapsulates UI/business logic| D[UI Actions / Page Objects]
+    B -->|Parameterized assertions| E[Questions]
+    E -->|Verifies state| D
+    subgraph CI/CD
+        F[GitHub Actions / Jenkins]
+        G[Tags @smoke/@critical/@slow] --> F
+        H[Parallel Execution] --> F
+        I[Test Impact Analysis (Ekstazi)] --> F
+        F -->|Runs only impacted/selected scenarios| B
+    end
+    style CI/CD fill:#f9f,stroke:#333,stroke-width:2px
+
+Explanation:
+
+1. Feature File → Step Definitions: Refactored Scenario Outlines with Examples.
+
+
+2. Step Definitions → Tasks/Interactions: Step defs delegate all logic.
+
+
+3. Step Definitions → Questions: Reusable assertions.
+
+
+4. Tasks → UI Actions / Page Objects: Handles actual interactions.
+
+
+5. CI/CD Layer: Tags + Parallel Execution + Ekstazi TIA → fast feedback, minimal runtime.
+
+
+
+
+---
+
+✅ Summary of High-Impact Gains
+
+1. Scenario Outlines + Examples → fewer scenarios, maintain coverage.
+
+
+2. Combined Step Definitions → reduce duplication, maintain thin step defs.
+
+
+3. Questions for Assertions → reusable, readable, minimal duplication.
+
+
+4. Tags + Selective Execution → fast CI feedback.
+
+
+5. Parallel Execution → faster total runtime.
+
+
+6. Test Impact Analysis (Ekstazi) → only run impacted tests, huge CI speedup.
+
+
+
+
+---
+
+This file is now a one-stop reference for high-impact Serenity Screenplay + Cucumber refactoring, including prompts, rules, examples, and workflow visuals.
+
+---
+
+This version gives you **everything in one place**: high-impact refactors, best practices, execution strategies, and a **visual workflow** for the team. 
+
+I can also make a **ready-to-use checklist section** in Markdown for your team to **apply these steps feature by feature**, so the refactor is systematic and repeatable. 
+
+Do you want me to do that next?
+
+
